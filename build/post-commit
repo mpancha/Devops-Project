@@ -8,10 +8,12 @@ git push origin $branchName --quiet
 
 if [ $curBranch == "dev" ]
 then
-	java -jar jenkins-cli.jar -s http://52.88.112.178:8080/ build 'dev' &> /dev/null
+	echo "Triggering build for Dev with commited changes."
+	java -jar jenkins-cli.jar -s http://52.11.202.117:8080/ build 'dev' &> /dev/null
 elif [ $curBranch == "release" ]
 then
-	java -jar jenkins-cli.jar -s http://52.88.112.178:8080/ build 'release' &> /dev/null
+	echo "Triggering build for Release with commited changes."
+	java -jar jenkins-cli.jar -s http://52.11.202.117:8080/ build 'release' &> /dev/null
 fi
 
 git checkout $curBranch --quiet
