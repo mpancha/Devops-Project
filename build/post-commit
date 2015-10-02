@@ -1,0 +1,19 @@
+#!/bin/bash
+curBranch=`git rev-parse --abbrev-ref HEAD --quiet`
+echo "Your commit will trigger build for $curBranch. Please wait...."
+branchName="$curBranch"_build
+
+git checkout -b $branchName --quiet
+git push origin $branchName --quiet
+
+if [ $curBranch == "dev" ]
+then
+	java -jar jenkins-cli.jar -s http://52.88.112.178:8080/ build 'dev' &> /dev/null
+elif [ $curBranch == "release" ]
+then
+	java -jar jenkins-cli.jar -s http://52.88.112.178:8080/ build 'release' &> /dev/null
+fi
+
+git checkout $curBranch --quiet
+git push origin :$branchName --quiet
+git branch -D $branchName --quiet
