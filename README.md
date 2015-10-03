@@ -9,7 +9,7 @@ Gargi Rajadhyaksha (gsrajadh)
 In this milestone we created a build server which is capable of building the target project.
 
 #### Build server setup
-We are using AWS EC2 to set up our virtual server instance. We booted up a Ubuntu 14.04 Server. On this server, Jenkins runs in the container (docker).
+We are using AWS EC2 to set up our virtual server. We booted up a Ubuntu 14.04 Server for running Jenkins container (docker)
 
 #### Tasks
 
