@@ -35,8 +35,8 @@ Screencast:
 
 Team Member Contributions
 
-Jenkins initial setup- Mitul
-Jenkins configuration- Shanil, Gargi, Mitul
-Post Commit Script - Shanil
-Mail Server setup - Shanil, Gargi
-ReadMe file - Gargi
+1. Jenkins initial setup- Mitul
+2. Jenkins configuration- Shanil, Gargi, Mitul
+3. Post Commit Script - Shanil
+4. Mail Server setup - Shanil, Gargi
+5. ReadMe file - Gargi
