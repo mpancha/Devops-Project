@@ -32,10 +32,10 @@ This is done in the post-commit script. Current branch name is checked and the c
 
 Past builds can be viewed in the build history section of Jenkins project page.
 
-Screencast:
+#### Screencast:
 ![Build milestone](https://github.com/gsrajadh/Devops-Project/blob/master/build/Devops-M1.gif)
 
-Team Member Contributions
+#### Team Member Contributions
 
 1. Jenkins initial setup- Mitul
 2. Jenkins configuration- Shanil, Gargi, Mitul
