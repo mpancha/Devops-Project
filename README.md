@@ -6,5 +6,5 @@ Shanil Puri (spuri3)
 Gargi Rajadhyaksha (gsrajadh)
 
 Following are the project milestones:
-* Build
+* [Build](https://github.com/gsrajadh/Devops-Project/blob/master/build/build.md)
 * Test
