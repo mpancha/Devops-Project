@@ -12,7 +12,7 @@ We have used [rspec](http://rspec.info) gem for unit testing our ruby code. For 
 ### Test Coverage Improvement
 In order to improve our test coverage we are using fuzzing technique. We have used  [Forgery](https://github.com/sevenwire/forgery), which is a fake data generator that improves coverage.
 The screencast below shows the improvement in coverage after using fuzzing technique.
-[Coverage Improvement after Fuzzing] (https://youtu.be/aB3Yjv4tjMg)
+[Coverage Improvement after Fuzzing] (https://youtu.be/tZjpFDYz0GA)
 
 ## Analysis
 
