@@ -6,7 +6,9 @@ In this milestone we have used various testing and analysis tools, which ensure 
 
 ### Unit Testing
 We have used [rspec](http://rspec.info) gem for unit testing our application written in Ruby. For coverage report we have installed RubyMetrics plugin in Jenkins. For measuring the coverage of the test we have used [Simplecov](https://rubygems.org/gems/simplecov/versions/0.10.0) and for displaying the result we have used [Rcov](https://rubygems.org/gems/rcov/versions/1.0.0).  
+#### Unit Testing  
 ![](https://github.com/gsrajadh/Devops-Project/blob/master/test%2Banalysis/screenshots/Test.png)  
+#### Coverage Report    
 ![](https://github.com/gsrajadh/Devops-Project/blob/master/test%2Banalysis/screenshots/CoverageReport.png)
 
 ### Test Coverage Improvement
@@ -19,6 +21,7 @@ The screencast below shows the improvement in coverage after using fuzzing techn
 
 ### Static Analysis
 For static analysis we have used the [Excellent](https://rubygems.org/gems/excellent) gem. We have configured Jenkins to run Excellent as a post-build task.  
+#### Excellent   
 ![](https://github.com/gsrajadh/Devops-Project/blob/master/test%2Banalysis/screenshots/Excellent-1.png)  
 
 
@@ -26,7 +29,7 @@ For static analysis we have used the [Excellent](https://rubygems.org/gems/excel
 
 
 ### Extended Analysis
-We have written a python script for static analysis which runs through all the files in the project, counts the number of lines which are comments and code. Then it prints the code to comment ratio percent.  
+We have written a python script for static analysis which runs through all the files in the project, counts the number of lines which are comments and code. Then it prints the code to comment ratio percent.   
 ![](https://github.com/gsrajadh/Devops-Project/blob/master/test%2Banalysis/screenshots/Extended%20analysis.png)
 
 ### Test Gate
