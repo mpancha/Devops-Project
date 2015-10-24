@@ -1,0 +1,143 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description></description>
+  <keepDependencies>false</keepDependencies>
+  <properties/>
+  <scm class="hudson.plugins.git.GitSCM" plugin="git@2.4.0">
+    <configVersion>2</configVersion>
+    <userRemoteConfigs>
+      <hudson.plugins.git.UserRemoteConfig>
+        <url>https://github.ncsu.edu/mpancha/Direwolf</url>
+        <credentialsId>35040798-1898-45e9-a471-cfb9076e440a</credentialsId>
+      </hudson.plugins.git.UserRemoteConfig>
+    </userRemoteConfigs>
+    <branches>
+      <hudson.plugins.git.BranchSpec>
+        <name>*/dev_build</name>
+      </hudson.plugins.git.BranchSpec>
+    </branches>
+    <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
+    <submoduleCfg class="list"/>
+    <extensions/>
+  </scm>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <authToken>DevKickStart</authToken>
+  <triggers/>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.Shell>
+      <command>rm -rf $WORKSPACE/Gemfile.lock;
+
+docker -H 52.89.132.135:4243 run -v /home/ubuntu$WORKSPACE:/test/ mpancha/buildserver /bin/sh -c &apos;cd /test/;bundle config --global path /test/bin/; bundle config --global bin /test/bin/;bundle install&apos;;
+if [ -f $WORKSPACE/Gemfile.lock ]; then
+  exit 0
+else
+  exit 1
+fi</command>
+    </hudson.tasks.Shell>
+  </builders>
+  <publishers>
+    <hudson.plugins.postbuildtask.PostbuildTask plugin="postbuild-task@1.8">
+      <tasks>
+        <hudson.plugins.postbuildtask.TaskProperties>
+          <logTexts>
+            <hudson.plugins.postbuildtask.LogProperties>
+              <logText></logText>
+              <operator>OR</operator>
+            </hudson.plugins.postbuildtask.LogProperties>
+          </logTexts>
+          <EscalateStatus>false</EscalateStatus>
+          <RunIfJobSuccessful>true</RunIfJobSuccessful>
+          <script>#!/bin/bash&#xd;
+CURDIR=`pwd`&#xd;
+echo $CURDIR&#xd;
+&#xd;
+echo &quot;Running Test&quot;&#xd;
+&#xd;
+docker -H 52.89.132.135:4243 run -v /home/ubuntu$CURDIR:/test/ mpancha/buildserver /bin/sh -c &apos;cd /test/;bundle config --global path /test/bin; bundle config --global bin /test/bin; bundle install; export PATH=$PATH:/test/bin; service mysql restart; rake db:create; rake db:migrate; bundle exec rspec spec/controllers/job_controller_spec.rb&apos;&#xd;
+&#xd;
+echo &quot;Running Static Code Analysis using excellent gem&quot;&#xd;
+&#xd;
+docker -H 52.89.132.135:4243 run -v /home/ubuntu$CURDIR:/test/ mpancha/buildserver /bin/sh -c &apos;cd /test/;bundle config --global path /test/bin; bundle config --global bin /test/bin; bundle install; export PATH=$PATH:/test/bin; excellent /test/app /test/config /test/script&apos;</script>
+        </hudson.plugins.postbuildtask.TaskProperties>
+        <hudson.plugins.postbuildtask.TaskProperties>
+          <logTexts>
+            <hudson.plugins.postbuildtask.LogProperties>
+              <logText></logText>
+              <operator>OR</operator>
+            </hudson.plugins.postbuildtask.LogProperties>
+          </logTexts>
+          <EscalateStatus>false</EscalateStatus>
+          <RunIfJobSuccessful>true</RunIfJobSuccessful>
+          <script>#!/usr/bin/python&#xd;
+import json&#xd;
+print &quot;EXTENDED ANALYSIS...&quot;&#xd;
+path=&apos;./app/&apos;&#xd;
+import os&#xd;
+count=0&#xd;
+l = 0&#xd;
+for root, dirs, files in os.walk(path, topdown=False):&#xd;
+    for name in files:&#xd;
+        if &quot;.rb&quot; in name:&#xd;
+           n=os.path.join(root, name)&#xd;
+           with open(n, &quot;r&quot;) as f:&#xd;
+              lines = f.readlines();&#xd;
+              for line in lines:&#xd;
+                   if line.strip().startswith(&quot;#&quot;):&#xd;
+                        count = count+1&#xd;
+                   l=l+1&#xd;
+print &quot;Code to comment ratio is&quot;,float(count)/l * 100&#xd;
+cc= float(count)/l * 100&#xd;
+&#xd;
+print &quot;ANALYSIS GATE...&quot;&#xd;
+ana_cov = float(cc)&#xd;
+if ana_cov &lt; 5:&#xd;
+   print  ana_cov&#xd;
+   print &quot;Analysis Gate FAILED&quot;&#xd;
+   exit(1)&#xd;
+print ana_cov&#xd;
+print &quot;Analysis Gate SUCCESS&quot;&#xd;
+print &quot;TEST GATE...&quot;&#xd;
+with open(&quot;coverage/coverage.json&quot;) as json_file:&#xd;
+    json_data = json.load(json_file)&#xd;
+    coverage = json_data[&apos;metrics&apos;][&apos;covered_percent&apos;]&#xd;
+    if int(coverage) &lt; 50:&#xd;
+        print coverage&#xd;
+        print &quot;Test Gate FAILED&quot;&#xd;
+        exit(1)&#xd;
+    print coverage&#xd;
+    print &quot;Test Gate SUCCESS&quot;&#xd;
+    exit(0)&#xd;
+</script>
+        </hudson.plugins.postbuildtask.TaskProperties>
+      </tasks>
+    </hudson.plugins.postbuildtask.PostbuildTask>
+    <hudson.plugins.rubyMetrics.rcov.RcovPublisher plugin="rubyMetrics@1.6.3">
+      <reportDir>coverage/rcov</reportDir>
+      <targets>
+        <hudson.plugins.rubyMetrics.rcov.model.MetricTarget>
+          <metric>TOTAL_COVERAGE</metric>
+          <healthy>70</healthy>
+          <unhealthy>50</unhealthy>
+          <unstable>0</unstable>
+        </hudson.plugins.rubyMetrics.rcov.model.MetricTarget>
+        <hudson.plugins.rubyMetrics.rcov.model.MetricTarget>
+          <metric>CODE_COVERAGE</metric>
+          <healthy>70</healthy>
+          <unhealthy>50</unhealthy>
+          <unstable>0</unstable>
+        </hudson.plugins.rubyMetrics.rcov.model.MetricTarget>
+      </targets>
+    </hudson.plugins.rubyMetrics.rcov.RcovPublisher>
+    <hudson.tasks.Mailer plugin="mailer@1.15">
+      <recipients>mpancha@ncsu.edu</recipients>
+      <dontNotifyEveryUnstableBuild>true</dontNotifyEveryUnstableBuild>
+      <sendToIndividuals>false</sendToIndividuals>
+    </hudson.tasks.Mailer>
+  </publishers>
+  <buildWrappers/>
+</project>
