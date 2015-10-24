@@ -20,6 +20,8 @@ The screencast below shows the improvement in coverage after using fuzzing techn
 ### Static Analysis
 For static analysis we have used the [Excellent](https://rubygems.org/gems/excellent) gem. We have configured Jenkins to run Excellent as a post-build task.  
 ![](https://github.com/gsrajadh/Devops-Project/blob/master/test%2Banalysis/screenshots/Excellent-1.png)  
+
+
 ![](https://github.com/gsrajadh/Devops-Project/blob/master/test%2Banalysis/screenshots/Excellent-2.png)
 
 
@@ -32,7 +34,7 @@ We have set the threshold for code coverage as 50 percent. We have set the analy
 ![](https://github.com/gsrajadh/Devops-Project/blob/master/test%2Banalysis/screenshots/Test%20and%20Analysis.png)
 
 ### Detect security tokens and keys
-We have written a shell script, which will check for AWS, digital ocean security tokens, and private SSH keys. We have configured hooks to reject the commit if any of these are violated. The code is present in [post-commit](https://github.com/gsrajadh/Devops-Project/blob/master/test%2Banalysis/scripts/post-commit)
+We have written a shell script, which will check for AWS, digital ocean security tokens, and private SSH keys. We have configured hooks to reject the commit if any of these are violated. The code is present in [post-commit](https://github.com/gsrajadh/Devops-Project/blob/master/test%2Banalysis/scripts/post-commit).
 
-### Screencast
+## Screencast
 [Demo](https://www.youtube.com/watch?v=mFmWYFqNsr8)
