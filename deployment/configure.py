@@ -2,8 +2,11 @@
 import os
 import sys
 import boto.ec2
-import subprocess
+#import subprocess
+from subprocess import Popen, PIPE, STDOUT
 import ansible.runner
+import redis
+
 from ansible.inventory import Inventory
 from ansible.playbook import PlayBook
 from ansible import utils
@@ -57,6 +60,7 @@ def aws(phase):
    os.environ['AWS_SECRET_ACCESS_KEY']= aws_secret_key
    
    d = deployment()
+   red = redis.StrictRedis(host='localhost', port=6379, db=0)
    if phase == 0:
       print "Clean up stale reservations...*****************\n"
       d.destroy_aws_instance()
@@ -73,47 +77,58 @@ def aws(phase):
       production = aws_ip[1]
       print "AWS Canary Instance =" + canary
       print "AWS Production Instance =" + production
+      print "Update Redis"
+      red.set('canary',canary)
+      red.set('production',production)
+      print red.get('canary')
+      print red.get('production')
       print "\nWriting Inventory...**************************"
-      aws_inv = "canary ansible_ssh_host="+canary+" ansible_ssh_user=ubuntu ansible_ssh_private_key_file=./keys/devops.pem\n"
+      aws_inv_can = "canary ansible_ssh_host="+canary+" ansible_ssh_user=ubuntu ansible_ssh_private_key_file=./keys/devops.pem\n"
       with open("inventory_canary","w") as f:
-         f.write(aws_inv)
-      aws_inv = "production ansible_ssh_host="+production+" ansible_ssh_user=ubuntu ansible_ssh_private_key_file=./keys/devops.pem\n"
+         f.write(aws_inv_can)
+      aws_inv_prod = "production ansible_ssh_host="+production+" ansible_ssh_user=ubuntu ansible_ssh_private_key_file=./keys/devops.pem\n"
       with open("inventory_production","w") as f:
-         f.write(aws_inv)
-
+         f.write(aws_inv_prod)
+      with open("inventory", "w") as f:
+         f.write(aws_inv_can+"\n")
+         f.write(aws_inv_prod)
    if phase == 2:
       os.environ['ANSIBLE_HOST_KEY_CHECKING']="false"
-      time.sleep(30)
       utils.VERBOSITY = 0
       playbook_cb = callbacks.PlaybookCallbacks(verbose=utils.VERBOSITY)
       stats = callbacks.AggregateStats()
       runner_cb = callbacks.PlaybookRunnerCallbacks(stats, verbose=utils.VERBOSITY)
-      inventory = Inventory('inventory_canary')
+      inventory = Inventory('inventory')
       print "\nRun Ansible PlayBook...**********************"
-      pb = PlayBook(playbook='canary.yml',
+      pb = PlayBook(playbook='server_play.yml',
               inventory=inventory,
               callbacks=playbook_cb,
               runner_callbacks=runner_cb,
               stats=stats
            )
       pb.run()	
-      inventory = Inventory('inventory_production')
-      print "\nRun Ansible PlayBook...**********************"
-      pb = PlayBook(playbook='production.yml',
-              inventory=inventory,
-              callbacks=playbook_cb,
-              runner_callbacks=runner_cb,
-              stats=stats
-           )
-      pb.run()	
+
+# Calls node js to run load balancer and web hook
+def monitor():
+    #subprocess.check_output(["/usr/bin/nodejs", "main.js"])
+    p = Popen(["/usr/bin/nodejs", "main.js"], stdout = PIPE, 
+        stderr = PIPE)
+    for line in iter(p.stdout.readline, ''):
+       print line
+    p.stdout.close()
+    rc = p.wait()
 
 def main(argv):
   
    if len(argv)> 1 and argv[1] == "clean":
       aws(phase=0)
+   elif len(argv)>1 and argv[1] == "monitor":
+      monitor()
    else:
       aws(phase=1)
+      time.sleep(40)
       aws(phase=2)
+      monitor()
 
 if __name__=="__main__":
    main(sys.argv)

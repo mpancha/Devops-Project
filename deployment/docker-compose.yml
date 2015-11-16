@@ -1,0 +1,14 @@
+jenkins:
+   image: mpancha/jenkins
+   ports:
+     - 8080:8080
+   volumes:
+     - "/home/ubuntu/jenkins:/var/jenkins_home"
+registry:
+   image: registry:2
+   ports:
+    - 5000:5000
+redis:
+   image: redis
+   ports:
+    - 6379:6379
