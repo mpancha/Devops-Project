@@ -30,7 +30,7 @@ var infrastructure = {
         if(req.body && req.body.ref) {
           if(req.body.ref.indexOf('release') > -1) {
              console.log('Trigger Build process for release (check jenkins)')
-             request("http://52.34.133.147:8080/job/release/build", function(error, response, body){});
+             request("http://52.33.84.211:8080/job/release/build", function(error, response, body){});
           }
         }
         res.status(204).end()
