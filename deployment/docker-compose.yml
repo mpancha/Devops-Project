@@ -5,6 +5,7 @@ jenkins:
      - 50000:50000
    volumes:
      - "/var/jenkins_home:/var/jenkins_home"
+   restart: always
 registry:
    image: registry:2
    ports:

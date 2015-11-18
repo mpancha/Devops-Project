@@ -5,7 +5,7 @@
   - name: Production App Container
     docker:
       name: production
-      image: 52.33.151.4:5000/direwolf:production
+      image: 52.34.133.147:5000/direwolf:production
       state: reloaded
       pull: always
       expose: 3000

@@ -6,7 +6,7 @@ var Ansible = require('node-ansible')
 var http      = require('http');
 var httpProxy = require('http-proxy');
 var request = require("request");
-
+var execSync = require('child_process').exec;
 var pserver,infra;
 var infrastructure = {
   setup: function(){
@@ -30,7 +30,7 @@ var infrastructure = {
         if(req.body && req.body.ref) {
           if(req.body.ref.indexOf('release') > -1) {
              console.log('Trigger Build process for release (check jenkins)')
-             request("http://52.33.151.4:8080/job/release/build", function(error, response, body){});
+             request("http://52.34.133.147:8080/job/release/build", function(error, response, body){});
           }
         }
         res.status(204).end()
@@ -41,13 +41,23 @@ var infrastructure = {
         if(req.body && req.body.ref) {
           if(req.body.ref.indexOf('release') > -1) {
              console.log('deploying production (release)')
-             var deploy = reload_production.exec();
-             deploy.then(function(success){console.log(success.output)}, function(error){console.error(error);})
+             deployProcess = execSync('./deploy.sh production release');
+             deployProcess.stdout.on('data', function(data){
+               console.log(data);
+             })
+             deployProcess.stdout.on('exit', function(data){
+               console.log('deploy exited with code'+code);
+             })
           };
           if(req.body.ref.indexOf('dev') > -1) {
              console.log('deploying canary (canary)')
-             var deploy = reload_canary.exec();
-             deploy.then(function(success){console.log(success.output)}, function(error){console.error(error);})
+             deployProcess = execSync('./deploy.sh canary dev');
+             deployProcess.stdout.on('data', function(data){
+               console.log(data);
+             })
+             deployProcess.stdout.on('exit', function(data){
+               console.log('deploy exited with code'+code);
+             })
           };
         }
         res.status(204).end()
