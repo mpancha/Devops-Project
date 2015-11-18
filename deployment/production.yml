@@ -8,5 +8,6 @@
       image: 52.33.151.4:5000/direwolf:production
       state: reloaded
       pull: always
+      expose: 3000
       ports:
-      - "3010:3000"
+      - 3000:3000
