@@ -23,8 +23,8 @@ var infrastructure = {
      app.use(bodyParser.urlencoded({ extended: true }))
      app.post('/alert',function(req,res){
         console.log('alert recieved... Cut off canary traffic');
-        prod_only = false;
-        res.send(204);
+        prod_only = true;
+        res.status(204).end()
        });
      app.post('/job/release/build',function(req, res){
         if(req.body && req.body.ref) {
@@ -64,19 +64,22 @@ var infrastructure = {
      });
     
      pserver  = http.createServer(function(req, res) {
-       count++;
-       if(prod_only == false && count % 10 == 1){
+       count = count+1 % 10;
+       if(prod_only == false && count % 10 == 5){
           console.log('proxy:Diverting 10% traffic to canary')
           client.get('canary',function(err, value){
-            console.log('redirecting to.. ');
-            console.log(value);
+            //console.log('redirecting to.. ');
+            //console.log(value);
             proxy.web( req, res, {target: value })
           } );
        } else {
-          console.log('proxy:Diverting 90% traffic to production')
+          if(prod_only == true)
+          {
+             console.log('proxy:Diverting 100% traffic to production')
+          } 
           client.get('production',function(err, value){
-            console.log('redirecting to.. ');
-            console.log(value);
+            //console.log('redirecting to.. ');
+            //console.log(value);
             proxy.web( req, res, {target: value })
           } );
        }
