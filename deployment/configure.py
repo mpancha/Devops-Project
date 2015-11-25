@@ -48,7 +48,8 @@ class deployment:
             if instance.state == "running":
                 inst.append(instance.ip_address)
       return inst
-
+def build():
+   aws(3)
 def aws(phase):
    #parse args
    with open("keys/rootkey.csv","r") as keyfile:
@@ -64,6 +65,28 @@ def aws(phase):
    if phase == 0:
       print "Clean up stale reservations...*****************\n"
       d.destroy_aws_instance()
+   if phase == 3:
+      d.create_aws_instance()
+      print "\nCheck AWS instance status...******************"
+      aws_ip = d.get_aws_reservation()
+      while aws_ip == None or aws_ip == []:
+         print "AWS Instance not ready, retry after 30 sec"
+         time.sleep(30)
+         aws_ip = d.get_aws_reservation()
+      for aws in aws_ip:
+         build_server = aws
+      print "Build server instance =", build_server
+      print "\nWriting Inventory...**************************"
+      aws_inv_build = "buildserver ansible_ssh_host="+build_server+" ansible_ssh_user=ubuntu ansible_ssh_private_key_file=./keys/devops.pem\n"
+      with open("inventory_buildserver","w") as f:
+         f.write(aws_inv_build)
+      p = Popen(["ansible-playbook","-i","inventory_buildserver", "buildserver.yml"], stdout = PIPE, 
+         stderr = PIPE)
+      for line in iter(p.stdout.readline, ''):
+         print line
+      rc = p.wait()
+      p.stdout.close()
+    
    if phase == 1:
       d.create_aws_instance()
       d.create_aws_instance()
@@ -129,6 +152,8 @@ def main(argv):
       aws(phase=0)
    elif len(argv)>1 and argv[1] == "monitor":
       monitor()
+   elif len(argv)>1 and argv[1] == "build":
+      build()
    else:
       aws(phase=1)
       time.sleep(40)

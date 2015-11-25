@@ -1,0 +1,11 @@
+---
+-  hosts: all
+   sudo: yes
+   roles:
+       - role: angstwad.docker_ubuntu
+         ssh_port: 2222
+         kernel_package_state: present
+         docker_opts: "--insecure-registry {{ansible_ssh_host}}:5000"
+   post_tasks:
+       - copy: src=./docker-compose.yml dest=/home/ubuntu/docker-compose.yml owner=root group=root mode=0644
+       - command: docker-compose up -d
